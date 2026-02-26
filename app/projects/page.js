@@ -1,99 +1,79 @@
-// Add deleteProject inside the curly braces here:
-import { createProject, deleteProject } from "./actions";
+import { deleteProject } from "./actions";
 import connectDB from "@/lib/db";
 import Project from "@/models/Project";
 
 export default async function ProjectsPage({ searchParams }) {
+  // 1. Properly await the searchParams (Required in Next.js 15)
   const params = await searchParams;
-  const userPass = params.pass;
+  const isAdmin = params.pass === process.env.ADMIN_SECRET;
 
-  const isAdmin = userPass === process.env.ADMIN;
-
+  // 2. Connect to DB and fetch projects
   await connectDB();
-  const projects = await Project.find({});
+  const projects = await Project.find({}).sort({ createdAt: -1 });
 
   return (
-    <div className="container mx-auto p-10">
-      {isAdmin && <div className="p-2 bg-red-100 text-red-700 text-xs text-center mb-4 rounded">Admin Access Granted</div>}
-      <h1 className="text-3xl font-bold mb-8">My Portfolio</h1>
-
-      {/* --- THE ADD FORM --- */}
-
-      {isAdmin && (
-        <div className="bg-gray-50 p-6 rounded-xl mb-12 border border-dashed border-gray-300">
-        <h2 className="text-xl font-semibold mb-4">Add a New Project</h2>
-        <form action={createProject} className="grid gap-4 max-w-md">
-          <input
-            name="title"
-            placeholder="Project Title"
-            className="p-2 border rounded"
-            required
-          />
-          <input
-            name="tech"
-            placeholder="Tech Stack (e.g. React, Node)"
-            className="p-2 border rounded"
-            required
-          />
-          <textarea
-            name="description"
-            placeholder="Short description"
-            className="p-2 border rounded"
-            required
-          />
-          <input
-            name="link"
-            placeholder="Project Link (Optional)"
-            className="p-2 border rounded"
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition"
-          >
-            Save Project
-          </button>
-        </form>
+    <main className="max-w-6xl mx-auto p-10 min-h-screen">
+      {/* Header Section */}
+      <div className="text-center mb-16">
+        <h1 className="text-4xl font-extrabold mb-4">Project Gallery</h1>
+        <p className="text-gray-500">A collection of things I've built with code.</p>
       </div>
-      )}
 
-      {/* --- THE LIST --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Projects Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {projects.map((project) => (
-          <div
-            key={project._id}
-            className="p-6 border rounded-xl shadow-sm bg-white flex flex-col justify-between"
-          >
-            <div>
-              <h2 className="text-xl font-bold text-blue-600">
+          <div key={project._id.toString()} className="group border rounded-2xl p-6 hover:shadow-xl transition-all bg-white flex flex-col h-full">
+            <div className="flex-grow">
+              <h2 className="text-xl font-bold mb-2 group-hover:text-blue-600 transition tracking-tight">
                 {project.title}
               </h2>
-              <p className="text-xs font-mono text-gray-400 mb-2">
-                {project.tech}
+              <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                {project.description}
               </p>
-              <p className="text-gray-700">{project.description}</p>
+              
+              <div className="flex flex-wrap gap-2 mb-6">
+                {project.tech.split(',').map(t => (
+                  <span key={t} className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-1 rounded-md uppercase">
+                    {t.trim()}
+                  </span>
+                ))}
+              </div>
             </div>
 
-            {/* --- DELETE FORM --- */}
-            {isAdmin && (
-              <form action={deleteProject} className="mt-4 border-t pt-4">
-              {/* We hide the ID in this input so the action knows which one to kill */}
-              <input
-                type="hidden"
-                name="projectId"
-                value={project._id.toString()}
-              />
-
-              <button
-                type="submit"
-                className="text-red-500 text-sm hover:bg-red-50 px-2 py-1 rounded transition"
+            {/* --- THE LINK BUTTON --- */}
+            {project.link && (
+              <a 
+                href={project.link.startsWith('http') ? project.link : `https://${project.link}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-flex items-center justify-center bg-gray-900 text-white text-sm font-medium py-2.5 px-4 rounded-lg hover:bg-blue-600 transition-colors mb-4"
               >
-                Delete Project
-              </button>
-            </form>
+                Visit Project 
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            )}
+
+            {/* Admin Delete Action */}
+            {isAdmin && (
+               <form action={deleteProject} className="pt-4 border-t mt-auto">
+                 <input type="hidden" name="projectId" value={project._id.toString()} />
+                 <button className="text-red-400 hover:text-red-600 text-xs font-semibold uppercase tracking-wider">
+                   Remove Project
+                 </button>
+               </form>
             )}
           </div>
         ))}
       </div>
-    </div>
+
+      {/* Empty State */}
+      {projects.length === 0 && (
+        <div className="text-center py-20 border-2 border-dashed rounded-3xl">
+          <p className="text-gray-400 text-lg">No projects added yet.</p>
+        </div>
+      )}
+    </main>
   );
 }
