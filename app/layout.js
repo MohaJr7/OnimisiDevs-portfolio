@@ -1,5 +1,12 @@
 import "./globals.css";
 import Link from "next/link"; // Essential for fast navigation
+import Footer from "./components/Footer";
+
+export const metadata = {
+  title: "Abdulrahman | Full-Stack Developer",
+  description: "Portfolio of a developer specializing in Next.js and MongoDB.",
+};
+
 
 export default function RootLayout({ children }) {
   return (
@@ -18,11 +25,12 @@ export default function RootLayout({ children }) {
         </nav>
 
         {/* This is where your page content (page.js) is injected */}
-        <main>{children}</main>
+        <main>
+          {children}
+          
+        </main>
         
-        <footer className="p-10 text-center text-gray-400 text-sm">
-          © 2026 Built with Next.js & Tailwind
-        </footer>
+        <Footer />
       </body>
     </html>
   );

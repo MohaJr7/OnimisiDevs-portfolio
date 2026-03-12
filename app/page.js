@@ -16,6 +16,7 @@ export default function Home() {
           </h1>
 
           <p className="text-xl text-gray-600 max-w-2xl leading-relaxed">
+            My name is Abdulrahman Muhammad.
             I'm a Full-Stack Developer specializing in high-performance Next.js
             applications and scalable MongoDB architectures. Currently focused
             on bridging the gap between clean code and great UX.
@@ -83,7 +84,7 @@ export default function Home() {
 
             <div className="flex gap-4">
               <a
-                href="https://github.com/your-username"
+                href="https://github.com/mohaJr7"
                 target="_blank"
                 className="p-4 bg-gray-800 rounded-xl hover:bg-gray-700 transition"
               >
@@ -94,7 +95,7 @@ export default function Home() {
                 </svg>
               </a>
               <a
-                href="https://linkedin.com/in/your-profile"
+                href="https://linkedin.com/in/abm-muh"
                 target="_blank"
                 className="p-4 bg-gray-800 rounded-xl hover:bg-gray-700 transition"
               >
